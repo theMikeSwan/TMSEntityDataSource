@@ -1,0 +1,11 @@
+use_frameworks!
+
+target 'TMSEntityDataSource_Example' do
+  pod 'TMSEntityDataSource', :path => '../'
+
+  target 'TMSEntityDataSource_Tests' do
+    inherit! :search_paths
+
+    
+  end
+end
