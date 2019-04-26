@@ -21,7 +21,6 @@ import CoreData
 /// - Make any desired alterations to the returned entity.
 ///
 /// Changes made to `fetchBatchSize`, `sortDescriptors`, `sectionNameKeyPath`, or `cacheName` after iniating the fetch request will have no effect.
-//public class EntityTableDataSource<Entity: NSManagedObject>: EntityDataSource<Entity>, UITableViewDataSource, NSFetchedResultsControllerDelegate {
 final public class EntityTableDataSource<Entity: NSManagedObject>: NSObject, UITableViewDataSource, NSFetchedResultsControllerDelegate, EntityDataSourceProtocol {
     
     /// The managed object context to fetch entities from.
@@ -39,19 +38,6 @@ final public class EntityTableDataSource<Entity: NSManagedObject>: NSObject, UIT
     public var sectionNameKeyPath: String?
     /// Passed to the fetched results controller's `cacheName`. (Optional)
     public var cacheName: String?
-    
-    /// Returns a new instance of the Entity type after inserting it into the managed object context.
-//    public func addItem() -> Entity {
-//        let result = Entity(context: context)
-//        context.processPendingChanges()
-//        do {
-//            try context.save()
-//        } catch {
-//            print("Error saving context after adding entity: \(error.localizedDescription)")
-//        }
-//        return result
-//    }
-    
     
     
     /// The table view to supply entities to.
@@ -71,8 +57,6 @@ final public class EntityTableDataSource<Entity: NSManagedObject>: NSObject, UIT
     public init(tableView: UITableView, reuseIdentifier: String, context: NSManagedObjectContext, predicate: NSPredicate?) {
         self.tableView = tableView
         self.reuseID = reuseIdentifier
-//        super.init(context: context, predicate: predicate)
-        // MORE BULLSHIT!!
         self.context = context
         self.fetchPredicate = predicate
         super.init()
@@ -82,12 +66,6 @@ final public class EntityTableDataSource<Entity: NSManagedObject>: NSObject, UIT
     }
     
     public func initiateFetchRequest() {
-//        let request = Entity.fetchRequest() as! NSFetchRequest<Entity>
-//        request.fetchBatchSize = self.fetchBatchSize
-//        request.sortDescriptors = self.sortDescriptors
-//        request.predicate = self.fetchPredicate
-        
-//        let controller = NSFetchedResultsController<Entity>(fetchRequest: request, managedObjectContext: self.context, sectionNameKeyPath: self.sectionNameKeyPath, cacheName: self.cacheName)
         let theController = controller()
         theController.delegate = self
         self.resultsController = theController

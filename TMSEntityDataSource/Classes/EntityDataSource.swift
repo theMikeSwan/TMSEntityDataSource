@@ -33,12 +33,18 @@ public protocol EntityDataSourceProtocol {
     var cacheName: String? { get set }
     
     /// Kicks off the fetch request.
+    ///
+    /// Use `controller()` to get the `NSFetchedResultsController`
     func initiateFetchRequest()
     /// Creates the fetched results controller needed for the class.
+    ///
+    /// Default implementation included in extension.
     func controller() -> NSFetchedResultsController<Entity>
     /// Reloads the data view container.
     func reloadData()
     /// Returns a new instance of the Entity type after inserting it into the managed object context.
+    ///
+    /// Default implementation included in extension.
     func addItem() -> Entity
 }
 extension EntityDataSourceProtocol {
