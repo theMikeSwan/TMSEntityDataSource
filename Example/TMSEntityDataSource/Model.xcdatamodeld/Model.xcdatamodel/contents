@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="14460.32" systemVersion="18D109" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+    <entity name="Event" representedClassName="Event" syncable="YES">
+        <attribute name="date" attributeType="Date" defaultDateTimeInterval="570299520" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="name" attributeType="String" defaultValueString="Event" syncable="YES"/>
+        <relationship name="category" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="EventCategory" inverseName="events" inverseEntity="EventCategory" syncable="YES"/>
+    </entity>
+    <entity name="EventCategory" representedClassName="EventCategory" syncable="YES">
+        <attribute name="name" optional="YES" attributeType="String" defaultValueString="Category" syncable="YES"/>
+        <relationship name="events" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Event" inverseName="category" inverseEntity="Event" syncable="YES"/>
+    </entity>
+    <elements>
+        <element name="Event" positionX="-63" positionY="-18" width="128" height="90"/>
+        <element name="EventCategory" positionX="-54" positionY="-9" width="128" height="75"/>
+    </elements>
+</model>

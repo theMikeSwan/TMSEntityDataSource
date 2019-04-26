@@ -21,7 +21,39 @@ import CoreData
 /// - Make any desired alterations to the returned entity.
 ///
 /// Changes made to `fetchBatchSize`, `sortDescriptors`, `sectionNameKeyPath`, or `cacheName` after iniating the fetch request will have no effect.
-public class EntityTableDataSource<Entity: NSManagedObject>: EntityDataSource<Entity>, UITableViewDataSource {
+//public class EntityTableDataSource<Entity: NSManagedObject>: EntityDataSource<Entity>, UITableViewDataSource, NSFetchedResultsControllerDelegate {
+final public class EntityTableDataSource<Entity: NSManagedObject>: NSObject, UITableViewDataSource, NSFetchedResultsControllerDelegate, EntityDataSourceProtocol {
+    
+    /// The managed object context to fetch entities from.
+    public let context: NSManagedObjectContext
+    /// The predicate to use to filter the fetch results.
+    public let fetchPredicate: NSPredicate?
+    /// Takes care of actually supplying the desired entities.
+    public var resultsController: NSFetchedResultsController<Entity>?
+    
+    /// How many results to fetch at one time. The default is 0 which the fetch request treats as infinite.
+    public var fetchBatchSize: Int = 0
+    /// An array of the sort descriptors that should be used in the fetched results controller. (Optional)
+    public var sortDescriptors: [NSSortDescriptor]?
+    /// Passed to the fetched results controller's `sectionNameKeyPath`. (Optional)
+    public var sectionNameKeyPath: String?
+    /// Passed to the fetched results controller's `cacheName`. (Optional)
+    public var cacheName: String?
+    
+    /// Returns a new instance of the Entity type after inserting it into the managed object context.
+//    public func addItem() -> Entity {
+//        let result = Entity(context: context)
+//        context.processPendingChanges()
+//        do {
+//            try context.save()
+//        } catch {
+//            print("Error saving context after adding entity: \(error.localizedDescription)")
+//        }
+//        return result
+//    }
+    
+    
+    
     /// The table view to supply entities to.
     private let tableView: UITableView
     /// The reuse ID for cells in the table view.
@@ -39,8 +71,36 @@ public class EntityTableDataSource<Entity: NSManagedObject>: EntityDataSource<En
     public init(tableView: UITableView, reuseIdentifier: String, context: NSManagedObjectContext, predicate: NSPredicate?) {
         self.tableView = tableView
         self.reuseID = reuseIdentifier
-        super.init(context: context, predicate: predicate)
+//        super.init(context: context, predicate: predicate)
+        // MORE BULLSHIT!!
+        self.context = context
+        self.fetchPredicate = predicate
+        super.init()
+        
+        
         tableView.dataSource = self
+    }
+    
+    public func initiateFetchRequest() {
+//        let request = Entity.fetchRequest() as! NSFetchRequest<Entity>
+//        request.fetchBatchSize = self.fetchBatchSize
+//        request.sortDescriptors = self.sortDescriptors
+//        request.predicate = self.fetchPredicate
+        
+//        let controller = NSFetchedResultsController<Entity>(fetchRequest: request, managedObjectContext: self.context, sectionNameKeyPath: self.sectionNameKeyPath, cacheName: self.cacheName)
+        let theController = controller()
+        theController.delegate = self
+        self.resultsController = theController
+        do {
+            try resultsController!.performFetch()
+            self.reloadData()
+        } catch {
+            print("Error fetching \(NSStringFromClass(Entity.self)) entities: \(error.localizedDescription)")
+        }
+    }
+    
+    public func reloadData() {
+        tableView.reloadData()
     }
     
     // MARK: - UITableViewDataSource
@@ -61,6 +121,7 @@ public class EntityTableDataSource<Entity: NSManagedObject>: EntityDataSource<En
     public func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
             self.context.delete( self.resultsController!.object(at: indexPath))
+            self.context.processPendingChanges()
             do {
                 try context.save()
             } catch {

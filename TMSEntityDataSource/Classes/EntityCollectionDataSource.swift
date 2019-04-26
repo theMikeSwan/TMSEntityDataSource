@@ -21,10 +21,27 @@ import CoreData
 /// - Make any desired alterations to the returned entity.
 ///
 /// Changes made to `fetchBatchSize`, `sortDescriptors`, `sectionNameKeyPath`, or `cacheName` after iniating the fetch request will have no effect.
-public class EntityCollectionDataSource<Entity: NSManagedObject>: EntityDataSource<Entity>, UICollectionViewDataSource {
+final public class EntityCollectionDataSource<Entity: NSManagedObject>: NSObject, UICollectionViewDataSource, NSFetchedResultsControllerDelegate, EntityDataSourceProtocol {
+    
     private let collectionView: UICollectionView
     private let reuseID: String
     private var resultsProcessingOperations: [BlockOperation] = []
+    
+    /// The managed object context to fetch entities from.
+    public let context: NSManagedObjectContext
+    /// The predicate to use to filter the fetch results.
+    public let fetchPredicate: NSPredicate?
+    /// Takes care of actually supplying the desired entities.
+    public var resultsController: NSFetchedResultsController<Entity>?
+    
+    /// How many results to fetch at one time. The default is 0 which the fetch request treats as infinite.
+    public var fetchBatchSize: Int = 0
+    /// An array of the sort descriptors that should be used in the fetched results controller. (Optional)
+    public var sortDescriptors: [NSSortDescriptor]?
+    /// Passed to the fetched results controller's `sectionNameKeyPath`. (Optional)
+    public var sectionNameKeyPath: String?
+    /// Passed to the fetched results controller's `cacheName`. (Optional)
+    public var cacheName: String?
     
     /// Initalizes a new `EntityCollectionDataSource` configured for use with a collection view with the given parameters.
     ///
@@ -38,8 +55,26 @@ public class EntityCollectionDataSource<Entity: NSManagedObject>: EntityDataSour
     public init(collectionView: UICollectionView, reuseIdentifier: String, context: NSManagedObjectContext, predicate: NSPredicate?) {
         self.collectionView = collectionView
         self.reuseID = reuseIdentifier
-        super.init(context: context, predicate: predicate)
+        self.context = context
+        self.fetchPredicate = predicate
+        super.init()
         collectionView.dataSource = self
+    }
+    
+    public func initiateFetchRequest() {
+        let theController = controller()
+        theController.delegate = self
+        self.resultsController = theController
+        do {
+            try resultsController!.performFetch()
+            self.reloadData()
+        } catch {
+            print("Error fetching \(NSStringFromClass(Entity.self)) entities: \(error.localizedDescription)")
+        }
+    }
+    
+    public func reloadData() {
+        collectionView.reloadData()
     }
     
     // MARK: - UICollectionViewDataSource

@@ -25,8 +25,24 @@ import CoreData
 /// For picker views you should not alter `fetchBatchSize`.
 ///
 /// Altering `sectionNameKeyPath` will have no effect for picker views.
-public class EntityPickerDataSource<Entity: NSManagedObject>: EntityDataSource<Entity>, UIPickerViewDataSource {
+final public class EntityPickerDataSource<Entity: NSManagedObject>: NSObject, UIPickerViewDataSource, NSFetchedResultsControllerDelegate, EntityDataSourceProtocol {
     private let picker: UIPickerView?
+    
+    /// The managed object context to fetch entities from.
+    public let context: NSManagedObjectContext
+    /// The predicate to use to filter the fetch results.
+    public let fetchPredicate: NSPredicate?
+    /// Takes care of actually supplying the desired entities.
+    public var resultsController: NSFetchedResultsController<Entity>?
+    
+    /// How many results to fetch at one time. The default is 0 which the fetch request treats as infinite.
+    public var fetchBatchSize: Int = 0
+    /// An array of the sort descriptors that should be used in the fetched results controller. (Optional)
+    public var sortDescriptors: [NSSortDescriptor]?
+    /// Passed to the fetched results controller's `sectionNameKeyPath`. (Optional)
+    public var sectionNameKeyPath: String?
+    /// Passed to the fetched results controller's `cacheName`. (Optional)
+    public var cacheName: String?
     
     /// Initalizes a new `EntityPickerDataSource` configured for use with a picker view with the given parameters.
     ///
@@ -37,9 +53,27 @@ public class EntityPickerDataSource<Entity: NSManagedObject>: EntityDataSource<E
     ///   - context: The managed object context to fetch entities from.
     ///   - filter: An NSPredicate that specifies how the results should be filtered.
     public init(pickerView: UIPickerView, context: NSManagedObjectContext, predicate: NSPredicate?) {
-        picker = pickerView
-        super.init(context: context, predicate: predicate)
+        self.picker = pickerView
+        self.context = context
+        self.fetchPredicate = predicate
+        super.init()
         picker?.dataSource = self
+    }
+    
+    public func initiateFetchRequest() {
+        let theController = controller()
+        theController.delegate = self
+        self.resultsController = theController
+        do {
+            try resultsController!.performFetch()
+            self.reloadData()
+        } catch {
+            print("Error fetching \(NSStringFromClass(Entity.self)) entities: \(error.localizedDescription)")
+        }
+    }
+    
+    public func reloadData() {
+        picker?.reloadAllComponents()
     }
     
     // MARK: - Fetched Results Controller
@@ -50,7 +84,7 @@ public class EntityPickerDataSource<Entity: NSManagedObject>: EntityDataSource<E
     ///
     /// - Parameter controller: The fetched results controller that sent the message.
     public func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-        picker?.reloadAllComponents()
+        reloadData()
     }
     
     // MARK: - UIPickerViewDataSource
@@ -69,7 +103,10 @@ public class EntityPickerDataSource<Entity: NSManagedObject>: EntityDataSource<E
     /// - Parameter atRow: The index of the desired entity.
     /// - Returns: The entity that is at the given index of the fetched objects.
     public func entity(atRow: Int) -> Entity {
-        return self.resultsController?.fetchedObjects?[atRow] ?? Entity()
+        guard let results = resultsController?.fetchedObjects else {
+            return Entity()
+        }
+        return results[atRow]
     }
     
     public func row(for entity: Entity) -> Int? {
