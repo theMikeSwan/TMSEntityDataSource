@@ -162,6 +162,8 @@ final public class EntityTableDataSource<Entity: NSManagedObject>: NSObject, UIT
         case .move:
             self.configure(cell: self.tableView.cellForRow(at: indexPath!)! as! EntityCellProtocol, atIndex: indexPath!)
             self.tableView.moveRow(at: indexPath!, to: newIndexPath!)
+        @unknown default:
+            break
         }
     }
     
@@ -186,6 +188,8 @@ final public class EntityTableDataSource<Entity: NSManagedObject>: NSObject, UIT
         case .update:
             self.tableView.reloadSections(IndexSet(integer: sectionIndex), with: .fade)
         case .move:
+            break
+        @unknown default:
             break
         }
     }

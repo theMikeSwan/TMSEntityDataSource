@@ -9,9 +9,9 @@
 
 ## Example
 
-To run the example project, clone the repo, and run `pod install` from the Example directory first and then hot Build & Run.
+To run the example project, clone the repo, and run `pod install` from the Example directory first and then hit Build & Run.
 
-The example app lets you create, edit, and delete events with a name, date, and category. 
+The example app lets you create, edit, and delete events with a name, date, and category, as well as create and edit the categories for those events. 
 
 The Events tab has a table view showing all of the events. It is run by `EventsTableViewController`.
 
@@ -43,7 +43,7 @@ If you don't want to use CocoaPods just drag `EntityDataSource` and the correspo
 ## Contributing
 If you see a way in which `TMSEntityDataSource` can be improved or needs fixing by all means send me a pull request, or at least open an issue. Even if you think your change is minor send it on, it might just make all the difference for someone.
 
-The main area that could use help right now is error handling, currently errors just get logged… not the best option…
+The main area that could use help right now is error handling, currently errors just get logged… not the best option.
 
 ## Author
 

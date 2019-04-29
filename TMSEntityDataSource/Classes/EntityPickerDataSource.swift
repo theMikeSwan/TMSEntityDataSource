@@ -113,6 +113,6 @@ final public class EntityPickerDataSource<Entity: NSManagedObject>: NSObject, UI
         guard let results = resultsController?.fetchedObjects else {
             return nil
         }
-        return results.index(of: entity)
+        return results.firstIndex(of: entity)
     }
 }

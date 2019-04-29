@@ -142,6 +142,8 @@ final public class EntityCollectionDataSource<Entity: NSManagedObject>: NSObject
             addResultsProcessing(operationBlock: {
                 self.collectionView.moveItem(at: indexPath!, to: newIndexPath!)
             })
+        @unknown default:
+            break
         }
     }
     
@@ -172,6 +174,8 @@ final public class EntityCollectionDataSource<Entity: NSManagedObject>: NSObject
                 self.collectionView.deleteSections(IndexSet(integer: sectionIndex))
             })
         case .move:
+            break
+        @unknown default:
             break
         }
     }

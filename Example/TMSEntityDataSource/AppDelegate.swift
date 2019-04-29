@@ -15,7 +15,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
 
 
-    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // We pass the context to the tab bar controller rather than having it find us and ask for the context. Telling rather than asking makes testing way easier… if you're into that kind of thing…
         guard let tabBarController = window?.rootViewController as? TabBarController else {
             fatalError("Didn't get a TabBarController as the root view controller!")
