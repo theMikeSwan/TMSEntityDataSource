@@ -65,7 +65,7 @@ class EventDetailViewController: UIViewController, UIPickerViewDelegate {
         if row == 0 { return " " }
         // While the delegate is the one that supplies the text that appears in the picker EntityPickerDatasource makes things easy for us.
         // We pass the row number we need the category for and grab out the attribute we want to display.
-        return categoryDataSource?.entity(atRow: row)?.name ?? ""
+        return categoryDataSource?.entity(atRow: row)?.name ?? " "
     }
     
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {

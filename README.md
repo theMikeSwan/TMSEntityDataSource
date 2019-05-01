@@ -1,6 +1,6 @@
-# TMSEntityDataSource
+# TMSEntityDatasource
 
-`TMSEntityDataSource` is a collection of classes designed to make populating table, collection, and picker views with Core Data entities easier.
+`TMSEntityDatasource` is a collection of classes designed to make populating table, collection, and picker views with Core Data entities easier.
 
 [![CI Status](https://img.shields.io/travis/theMikeSwan/TMSEntityDataSource.svg?style=flat)](https://travis-ci.org/theMikeSwan/TMSEntityDataSource)
 [![Version](https://img.shields.io/cocoapods/v/TMSEntityDataSource.svg?style=flat)](https://cocoapods.org/pods/TMSEntityDataSource)
@@ -17,7 +17,7 @@ The example app lets you create, edit, and delete events with a name, date, and 
 
 There are two tabs in the app; one for events and one for categories. The evnents are listed in a table view and the categories are in a collection view.
 
-The detail page for events includes a picker view with all of the categories in it and the category detail view has a table view that is filtered to display only the events in the selected category. (It would be better in a production app to just use the `events` property from the selected category, but the goal of ther example app is to show the various usage patterns of `TMSEntityDataSource`.)
+The detail page for events includes a picker view with all of the categories in it and the category detail view has a table view that is filtered to display only the events in the selected category. (It would be better in a production app to just use the `events` property from the selected category, but the goal of the example app is to show the various usage patterns of `TMSEntityDatasource`.)
 
 ### Areas of Interest
 
@@ -64,8 +64,113 @@ pod 'TMSEntityDataSource'
 If you don't want to use CocoaPods just drag the files for whichever views you need to supply data to into your project.
 
 ## Usage
+`TMSEntityDatasource` is designed to be as easy as possible to use. There are a few steps you will want to follow for each data view that you want to display a kind of Core Data entity in:
 
+1. Create a custom subclass of `UItableViewCell` or `UICollectionViewCell` and have it conform to `EntityCellProtocol`.
+2. Add a property to hold the datasource to the view controller.
+3. Setup the datasource during `viewDidLoad()`.
+4. If needed add an `@IBAction` to tell the datasource to create a new instance of the displayed entity.
+5. For picker views setup the two `UIPickerViewDelegate` methods.
 
+### 1. Create a custom subclass of `UItableViewCell` or `UICollectionViewCell` and have it conform to `EntityCellProtocol`.
+
+The only requirement of `EntityCellProtocol` is a single property:
+
+``` swift
+var entity: NSManagedObject? 
+```
+
+To make life easier within the cell you will likely want to have a way to convert `entity` to the specific subclass of `NSManagedObject` that you cell displays…
+
+``` swift
+private var myEntity: MyEntity? {
+	get {
+		guard let myEntity = entity as? MyEntity else { return nil }
+		return myEntity
+	}
+}
+```
+
+All that is left is to configure the cell based on the entity it was passed. A `didSet` observer is handy for triggering such a congiguration:
+
+``` swift
+var entity: NSManagedObject? {
+	didSet {
+		configureCell()
+	}
+}
+```
+
+### 2. Add a property to hold the datasource to the view controller.
+
+``` swift
+private var dataSource: EntityTableDataSource<MyEntity>?
+```
+`MyEntity` is, of course, whatever Core Data entity you want displayed in the table.
+
+### 3. Setup the datasource during `viewDidLoad()`.
+To setup the datasource you need to make sure you have a managed object context and a view that needs a datasource. Then you can create a predicate if desired, create the datasource, and set any sort descriptors if needed. Once that is taken care of you start the fetch request.
+
+``` swift
+private func setupDataSource() {
+	guard let moc = managedObjectContext, let collectionView = self.collectionView else { return }
+	dataSource = EntityCollectionDataSource<MyEntity>(collectionView: collectionView, reuseIdentifier: reuseIdentifier, context: moc, predicate: nil)
+	dataSource?.sortDescriptors = [NSSortDescriptor(key: "name", ascending: true)]
+	dataSource?.initiateFetchRequest()
+}
+```
+
+There is an extra optional argument when creating a picker view datasource that allows you to specify a blank line be added at the start of the picker.
+
+``` swift
+dataSource = EntityPickerDataSource<MyEntity>(pickerView: picker, context: moc, predicate: nil, includeBlankOption: true)
+```
+
+When the blank line is included the datasource will do the math for you on row indexes you just have to remember that index 0 represents nil.
+
+### 4. If needed add an `@IBAction` to tell the datasource to create a new instance of the displayed entity.
+
+All of the datasources have a convient `addItem()` method that creates a new instance of the entity the datasource is working with and inserts it in the managed object context. It returns this new instance so that you can make any initial adjustments:
+
+``` swift
+@IBAction func addAnEntity(_ sender: Any) {
+	let theEntity = dataSource?.addItem()
+	theEntity?.name = "Awesome!"
+}
+```
+
+If you only want the entity created in the context you can ignore the returned entity:
+
+``` swift
+@IBAction func addAnEntity(_ sender: Any) {
+	dataSource?.addItem()
+}
+```
+
+### 5. For picker views setup the two `UIPickerViewDelegate` methods.
+
+Since picker views don't have cells the delegate has to supply a string for each row. The picker datasource makes the process pretty easy though as it has a method for supplying the correct entity for a given row index. It even takes into account if there is a blank option at the start of the picker:
+
+``` swift
+func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+	if row == 0 { return " " }
+	return dataSource?.entity(atRow: row)?.name ?? " "
+}
+```
+
+You could take the first line out of that method as `entity(atRow: )` will return nil for row 0 if there is a blank line in place ( 0 -1 = -1 which is out of the bounds of all arrays).
+
+You use the same method when the user selects an item from the picker to determine which entity you should drop into the relationship.
+
+``` swift   
+func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
+	guard row != 0 else {
+		currentEntity?.category = nil
+		return
+	}
+	currentEntity?.category = dataSource?.entity(atRow: row)
+}
+```
 
 ## Contributing
 If you see a way in which `TMSEntityDataSource` can be improved or needs fixing by all means send me a pull request, or at least open an issue. Even if you think your change is minor send it on, it might just make all the difference for someone.
