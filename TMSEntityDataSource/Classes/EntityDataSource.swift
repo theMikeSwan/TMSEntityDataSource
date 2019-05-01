@@ -61,7 +61,7 @@ extension EntityDataSourceProtocol {
     
     
     /// Returns a new instance of the Entity type after inserting it into the managed object context.
-    public func addItem() -> Entity {
+    @discardableResult public func addItem() -> Entity {
         let result = Entity(context: context)
         context.processPendingChanges()
         do {

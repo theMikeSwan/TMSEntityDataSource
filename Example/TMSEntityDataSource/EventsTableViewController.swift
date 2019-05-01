@@ -54,13 +54,12 @@ class EventsTableViewController: UITableViewController, ContextAwareViewControll
     @IBAction func addEvent(_ sender: Any) {
         // EntityDataSource will return the newly created entity so you can set any initial values.
         let event = dataSource?.addItem()
-        event?.date = Date() as NSDate
+        event?.name = "Awesome Event!"
     }
     
     
     // MARK: - Navigation
 
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "ShowDetail" {
             guard let cell = sender as? EventTableViewCell else { return }

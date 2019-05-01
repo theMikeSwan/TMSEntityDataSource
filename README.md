@@ -11,22 +11,47 @@
 
 To run the example project, clone the repo, and run `pod install` from the Example directory first and then hit Build & Run.
 
+### Overview of the example app
+
 The example app lets you create, edit, and delete events with a name, date, and category, as well as create and edit the categories for those events. 
 
-The Events tab has a table view showing all of the events. It is run by `EventsTableViewController`.
+There are two tabs in the app; one for events and one for categories. The evnents are listed in a table view and the categories are in a collection view.
 
-Tapping on an event will take you to the event detail screen that has a picker view containing all of the event categories. If you want to see how to use the picker data source check out `EventDetailViewController`.
+The detail page for events includes a picker view with all of the categories in it and the category detail view has a table view that is filtered to display only the events in the selected category. (It would be better in a production app to just use the `events` property from the selected category, but the goal of ther example app is to show the various usage patterns of `TMSEntityDataSource`.)
 
-The Categories tab has a collection view displaying all of the categories along with how many events there are in each category. It is run by `CategoryCollectionViewController` if you want to see how to use the collection view data source.
+### Areas of Interest
 
-Tapping on a category cell will take you to the `CategoryDetailViewController`'s screen where you will see a table view of events that are attached to the selected category. This is done by using a `EntityTableDataSource` with a predicate if you want an example of filtering the data source with a predicate. (Note that it would be easier to grab the entities from the `events` relationship but that wouldn't supply you with a demo of how to add a predicate.)
+#### In the Cells group
+There is a custom cell class for both events and categories that take care of displaying the event or category they are given (note that the outlets are all private eliminating the urge to set them from outside the cell).
 
-You should also take a look at `EventTableViewCell` and `CategoryCollectionViewCell` to see how the `EntityCellProtocol` is used.
+The main thing to look at in these classes is the `entity` property and the `event`/`category` property as these show how to trigger the setup of the view and one way of converting from the generic `NSManagedObject` that is `entity` to the specific entity the cell works with.
 
-All of the code has comments throughout to help guide you through. If anything isn't clear feel free to open an issue or, better yet, change the comments as you see fit and create a pull request.
+#### In the ViewControllers group
+##### `EventsTableViewController.swift`
+To see how the data source is setup for a table view when the view loads take a look at `setupDataSource()`.
+
+For adding new entities to the context check out `addEvent(_:)`. This version makes a change to the newly created event, the category view shows ignoring the returned entity.
+
+##### `CategoryCollectionViewController.swift`
+To see how the data source is setup for a collection view when the view loads take a look at `setupDataSource()`.
+
+For adding new entities to the context check out `addEvent(_:)`. Since `addItem()` is marked with `@discardableResult` you can just ignore the returned entity if you don't want to make any changes at creation.
+
+##### `EventDetailViewController.swift`
+`setupDatasource()` shows configuring an `EntityPickerDataSource`. In this example we include a blank option at the top of the picker since the category relationship is optional.
+
+Given that there is no easy way to tell `EntityPickerDataSource` what attribute of tghe category entities we want to display in the picker view the delegate methods are left to the the client app. `EntityPickerDataSource` does provide a couple useful methods to help though…
+
+`configureView()` shows the initial setup of the picker view after the datasource has been setup. It gets the row index for the event's category from the datasource.
+
+`pickerView(_:, titleForRow:, forComponent: )` shows how easy it is to get the proper string to use for each row by using `EntityPickerDataSource`'s `entity(atRow:)` method. `pickerView(_:, didSelectRow:, inComponent: )` uses the same method when assigning the selected category to the event.
+
+##### `CategoryDetailViewController.swift`
+In this one `setupDataSource()` shows setting up a datasource with a predicate.
 
 ## Requirements
-iOS 11.0 or higher
+- iOS 11.0 or higher
+- Core Data
 
 ## Installation
 
@@ -36,9 +61,11 @@ it, simply add the following line to your Podfile:
 ```ruby
 pod 'TMSEntityDataSource'
 ```
-If you don't want to use CocoaPods just drag `EntityDataSource` and the corresponding data source classes for whichever views you need to supply data to into your project.
+If you don't want to use CocoaPods just drag the files for whichever views you need to supply data to into your project.
 
 ## Usage
+
+
 
 ## Contributing
 If you see a way in which `TMSEntityDataSource` can be improved or needs fixing by all means send me a pull request, or at least open an issue. Even if you think your change is minor send it on, it might just make all the difference for someone.

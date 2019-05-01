@@ -27,6 +27,7 @@ import CoreData
 /// Altering `sectionNameKeyPath` will have no effect for picker views.
 final public class EntityPickerDataSource<Entity: NSManagedObject>: NSObject, UIPickerViewDataSource, NSFetchedResultsControllerDelegate, EntityDataSourceProtocol {
     private let picker: UIPickerView?
+    private let includeBlankOption: Bool
     
     /// The managed object context to fetch entities from.
     public let context: NSManagedObjectContext
@@ -51,11 +52,13 @@ final public class EntityPickerDataSource<Entity: NSManagedObject>: NSObject, UI
     /// - Parameters:
     ///   - pickerView: The picker view that should be supplied with data
     ///   - context: The managed object context to fetch entities from.
-    ///   - filter: An NSPredicate that specifies how the results should be filtered.
-    public init(pickerView: UIPickerView, context: NSManagedObjectContext, predicate: NSPredicate?) {
+    ///   - predicate: An NSPredicate that specifies how the results should be filtered.
+    ///   - includeBlankOption: Bool that indicates if there should be one blank option in the picker. Defaults to `false`.
+    public init(pickerView: UIPickerView, context: NSManagedObjectContext, predicate: NSPredicate?, includeBlankOption: Bool = false) {
         self.picker = pickerView
         self.context = context
         self.fetchPredicate = predicate
+        self.includeBlankOption = includeBlankOption
         super.init()
         picker?.dataSource = self
     }
@@ -93,26 +96,48 @@ final public class EntityPickerDataSource<Entity: NSManagedObject>: NSObject, UI
     }
     
     public func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
-        return self.resultsController?.fetchedObjects?.count ?? 0
+        var count = self.resultsController?.fetchedObjects?.count ?? 0
+        if includeBlankOption {
+            count += 1
+        }
+        return count
     }
     
     /// Supplies the entity at a given row.
     ///
     /// This method is useful for the `UIPickerViewDelegate`'s `pickerView(_: , titleForRow: , forComponent: )` and `pickerView(_: , didSelectRow: , inComponent: )` methods.
     ///
+    /// This method takes into account if there is a blank line in the picker view and will offset the returned index accordingly so no math is required on the passed in index.
+    /// You will get back `nil` if the passed in Int is outside the bounds of the results.
+    ///
     /// - Parameter atRow: The index of the desired entity.
     /// - Returns: The entity that is at the given index of the fetched objects.
-    public func entity(atRow: Int) -> Entity {
+    public func entity(atRow: Int) -> Entity? {
         guard let results = resultsController?.fetchedObjects else {
-            return Entity()
+            return nil
         }
-        return results[atRow]
+        var index = atRow
+        if includeBlankOption {
+            index -= 1
+        }
+        guard index >= 0, index < results.count else { return nil }
+        return results[index]
     }
     
+    /// Supplies the row index for a given entity, provided the entity exists in the results set.
+    ///
+    /// This method takes into account if there is a blank line in the picker view and will offset the returned index accordingly so no math is required on the result.
+    ///
+    /// - Parameter entity: The entity for which the row index is desired.
+    /// - Returns: The row index, if it exists, of the entity.
     public func row(for entity: Entity) -> Int? {
         guard let results = resultsController?.fetchedObjects else {
             return nil
         }
-        return results.firstIndex(of: entity)
+        var index = results.firstIndex(of: entity)
+        if index != nil, includeBlankOption {
+            index! += 1
+        }
+        return index
     }
 }

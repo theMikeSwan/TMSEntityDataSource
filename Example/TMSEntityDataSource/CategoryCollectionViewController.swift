@@ -62,8 +62,8 @@ class CategoryCollectionViewController: UICollectionViewController, ContextAware
     
 
     @IBAction func addCategory(_ sender: Any) {
-        // If you don't want to make any changes to the entity when adding it simply ignore the return value.
-        _ = dataSource?.addItem()
+        // If you don't want to make any changes to the entity when adding it simply ignore the return value. It is marked as a discardable result.
+        dataSource?.addItem()
     }
 
 }
