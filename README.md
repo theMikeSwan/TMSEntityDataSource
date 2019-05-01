@@ -6,6 +6,7 @@
 [![Version](https://img.shields.io/cocoapods/v/TMSEntityDataSource.svg?style=flat)](https://cocoapods.org/pods/TMSEntityDataSource)
 [![License](https://img.shields.io/cocoapods/l/TMSEntityDataSource.svg?style=flat)](https://cocoapods.org/pods/TMSEntityDataSource)
 [![Platform](https://img.shields.io/cocoapods/p/TMSEntityDataSource.svg?style=flat)](https://cocoapods.org/pods/TMSEntityDataSource)
+[![readme Score](http://readme-score-api.herokuapp.com/score.svg?url=https://github.com/themikeswan/tmsentitydatasource)](http://clayallsopp.github.io/readme-score?url=https://github.com/themikeswan/tmsentitydatasource)
 
 ## Example
 
