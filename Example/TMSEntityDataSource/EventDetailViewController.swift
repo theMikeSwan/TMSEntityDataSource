@@ -51,6 +51,8 @@ class EventDetailViewController: UIViewController, UIPickerViewDelegate {
     }
     
     /// Takes care of setting up the data source after making sure the category picker exists and grabbing the context from the event (provided it exists).
+    ///
+    /// Shows setting up a data source for a picker view that displays all instances of a given entity type along with a blank line at the start to represent nil.
     private func setupDataSource() {
         guard let moc = event?.managedObjectContext, let categoryPicker = self.categoryPicker else { return }
         categoryDataSource = EntityPickerDataSource<EventCategory>(pickerView: categoryPicker, context: moc, predicate: nil, includeBlankOption: true)

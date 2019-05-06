@@ -9,6 +9,9 @@
 import UIKit
 import CoreData
 
+/// This protocol makes it easier to distribute the managed object context to all of the tab bar controller's view controllers.
+///
+/// Doing it this way we don't have to cast each of the view controller's to their specific class to assign a managed object context.
 protocol ContextAwareViewController {
     var managedObjectContext: NSManagedObjectContext? { get set }
 }

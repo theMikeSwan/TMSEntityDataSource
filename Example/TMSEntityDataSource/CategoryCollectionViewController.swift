@@ -42,6 +42,8 @@ class CategoryCollectionViewController: UICollectionViewController, ContextAware
     }
 
     /// Takes care of setting up the data source after making sure the context and collection view both exist.
+    ///
+    /// Shows setting up a data source for a collection view that displays all entities of a given type.
     private func setupDataSource() {
         guard let moc = managedObjectContext, let collectionView = self.collectionView else { return }
         dataSource = EntityCollectionDataSource<EventCategory>(collectionView: collectionView, reuseIdentifier: reuseIdentifier, context: moc, predicate: nil)
@@ -60,7 +62,9 @@ class CategoryCollectionViewController: UICollectionViewController, ContextAware
         }
     }
     
-
+    /// Adds a new event category.
+    ///
+    /// Shows how to use the data source to create a new entity when you don't want to make any adjustments to the new instance.
     @IBAction func addCategory(_ sender: Any) {
         // If you don't want to make any changes to the entity when adding it simply ignore the return value. It is marked as a discardable result.
         dataSource?.addItem()

@@ -43,6 +43,8 @@ class EventsTableViewController: UITableViewController, ContextAwareViewControll
     }
     
     /// Takes care of setting up the data source after making sure the context and table view both exist.
+    ///
+    /// Shows setting up a data source for a table view that displays all entities of a given type.
     private func setupDataSource() {
         // We call this when the context is set which could be before the view has loaded so we make sure the table view exists as well as the context before proceeding
         guard let moc = managedObjectContext, let tableView = self.tableView else { return }
@@ -51,6 +53,9 @@ class EventsTableViewController: UITableViewController, ContextAwareViewControll
         dataSource?.initiateFetchRequest()
     }
 
+    /// Adds a new event entity with the name "Awesome Event!".
+    ///
+    /// Shows using the data source to create new entities and altering the newly created entity.
     @IBAction func addEvent(_ sender: Any) {
         // EntityDataSource will return the newly created entity so you can set any initial values.
         let event = dataSource?.addItem()

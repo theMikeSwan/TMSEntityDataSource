@@ -34,6 +34,8 @@ class CategoryDetailViewController: UIViewController {
     }
     
     /// Takes care of setting up the data source after making sure the context and table view both exist.
+    ///
+    /// Shows setting up a table view data source that shows only the instances of a given entity type that meet the requirements of a given predicate.
     private func setupDataSource() {
         // We call this when the context is set which could be before the view has loaded so we make sure the table view exists as well as the context before proceeding
         guard let category = self.category, let moc = category.managedObjectContext, let tableView = self.tableView else { return }
