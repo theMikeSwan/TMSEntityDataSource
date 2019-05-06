@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'TMSEntityDataSource'
-  s.version          = '0.5.0'
+  s.version          = '0.5.1'
   s.summary          = 'Makes displaying Core Data entities in Table, Collection, and Picker views much easier.'
 
 # This description is used to generate tags and improve search results.
@@ -29,6 +29,7 @@ Pod::Spec.new do |s|
   s.social_media_url = 'https://twitter.com/_theMikeSwan'
 
   s.ios.deployment_target = '11.0'
+  s.swift_version = '5.0'
 
   s.source_files = 'TMSEntityDataSource/Classes/**/*'
   
